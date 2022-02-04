@@ -48,7 +48,7 @@ def order_list(request):
 
                        })
 
-    return render( request, 'index.html', {'orders': result})
+    return render( request, 'order_list.html', {'orders': result})
 
 def order_details(request, id):
     order = Order.objects.prefetch_related('product_set', 'delivery_set').get(prom_id=id)
