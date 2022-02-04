@@ -1,7 +1,16 @@
 from .models import Order
 from django.shortcuts import render
 from django.db.models import Q
-from leads.utilits import edit_query_to_dict
+
+
+def edit_query_to_dict(quaery_set):
+    parsed_set = list(quaery_set.values())
+    result = {}
+
+    for item in parsed_set:
+        result[item['id']] = item
+    return result
+
 
 
 def order_list(request):
