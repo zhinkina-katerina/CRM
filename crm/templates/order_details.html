@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Заказ {{ order.prom_id }}{% endblock %}
+
+{% block header %}
+    Заказ {{ order.prom_id }}
+{% endblock %}
+
+
+{% block content %}
+    <div class="container-fluid">
+    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+                        <h6 class="text-dark mb-0">01,26,2006</h6>
+    <div class="dropdown"><button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false" type="button" style="background-color: #4f2170;">Принят</button>
+                            <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">First Item</a><a class="dropdown-item" role="presentation" href="#">Second Item</a><a class="dropdown-item" role="presentation" href="#">Third Item</a></div>
+                        </div></div>
+
+
+
+<div class="row" style="margin: 0px;padding: 20px;">
+                    <div class="w-100 d-sm-block d-md-none d-lg-none d-xl-none"></div>
+                    <div class="col" style="padding:0px;">
+                        <div class="card">
+                            {% for product in products.values %}
+                            <div class="card-body border rounded-0" style="padding: -9px;">
+                                <div class="row">
+                                    <div class="col-xl-4 d-inline-flex flex-column align-content-center align-items-xl-center" style="background-color: rgba(109,40,170,0.19);padding: -1px;"><img class="img-thumbnail d-xl-flex align-items-center align-content-center my-auto" src="{{product.image}}"></div>
+                                    <div class="col">
+                                        <p>{{ product.name }}</p>
+                                        <p>{{ product.quantity }} шт.<br></p>
+                                        <p>{{ product.retail }} грн<br></p>
+                                    </div>
+                                    <div class="col">
+                                        <p>Код товара: {{ product.sku }}<br></p>
+                                        <p>Склад:{{ product.warehouse }}<br></p>
+                                        <p>Наличие: <br></p>
+                                    </div>
+                                </div>
+                            </div>
+
+{% endfor %}
+
+                            <h5 class="text-left text-dark border rounded-0 mb-0" style="margin: 0px;padding: 29px;">Всего:
+                                {{ order.total_price }}</h5>
+
+                            <div class="card-body border rounded-0" style="height:50vh;">
+                                <div class="row">
+                                    <div class="col">
+                                        <h5>Клиент</h5>
+                                        <p>{{ order.customer}}<br></p>
+                                        <p>{{ order.customer.phone_number }}<br></p>
+                                        <p>{{ order.customer.email }}<br></p>
+                                        <hr>
+                            {% for item in delivery.values  %}
+
+                                        <p>{{ item.city }}</p>
+                                        <p>Отделение {{ item.post_office_number }}</p>
+                                        <p>ТТН: {{ order.ttn }}</p>
+                                        <p>Статус доставки: {{item.status_of_delivery}}</p>
+
+                                    </div>
+                                    <div class="col">
+                                        <h5>Оплата</h5>
+                                        <p>{{ order.payment_name }}</p>
+                                        <p>Дата прибытия: {{ item.arrival_date }}</p>
+                                        <p>Дата окончания хранения: {{ item.final_storage_date }}</p>
+                                        <p>Стоимость доставки: {{ item.cost_of_delivery }}</p>
+
+                                        {% if item.is_paid_delivery %}
+                                        <p>Платим ли мы за доставку: Да </p>
+                                        {% else %}
+                                        <p>Платим ли мы за доставку: Нет </p>
+                                        {% endif %}
+
+                            {% endfor %}
+                                        <p><input type="checkbox" style="width: 17px;height: 15px;margin: 0px;">&nbsp;Нелояльный клиент</p>
+                                        <hr>
+                                        <div class="btn-group" role="group"><button class="btn btn-primary" type="button">Написать в вайбер</button><button class="btn btn-primary" type="button">Отправить смс</button></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+</div>
+{% endblock %}
