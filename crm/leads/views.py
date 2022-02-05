@@ -10,9 +10,9 @@ def order_list(request):
     if search_object:
 
         orders = orders.filter(
-            Q(prom_id__icontains=search_object)|
-            Q(customer__fullname__icontains=search_object)|
-            Q(product__name__icontains=search_object))
+            Q(prom_id__iregex=search_object)|
+            Q(customer__fullname__iregex=search_object)|
+            Q(product__name__iregex=search_object))
 
 
 
