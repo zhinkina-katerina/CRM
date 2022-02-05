@@ -7,6 +7,14 @@
 
 
 {% block content %}
+{% load static %}
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js">
+</script>
+<script src="{% static 'js/set-new-value-in-form.js' %}"></script>
+
+
+
+
     <div class="container-fluid">
     <div class="d-sm-flex justify-content-between align-items-center mb-4">
                         <h6 class="text-dark mb-0">01,26,2006</h6>
@@ -54,8 +62,12 @@
 
                                         <p>{{ item.city }}</p>
                                         <p>Отделение {{ item.post_office_number }}</p>
-                                        <p>ТТН: {{ order.ttn }}</p>
-                                        <p>Статус доставки: {{item.status_of_delivery}}</p>
+
+
+                                {% include 'form.html' %}
+
+
+                                        <p>Статус доставки: {{item.status_of_delivery}}
 
                                     </div>
                                     <div class="col">
