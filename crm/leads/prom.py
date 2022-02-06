@@ -1,5 +1,5 @@
 from .api_connector import ApiConnector
-from ..settings import settings
+from .settings import settings
 
 
 class HTTPError(Exception):

@@ -1,5 +1,5 @@
 from .api_connector import ApiConnector
-from crm.settings import settings
+from leads.settings import settings
 
 
 class HTTPError(Exception):
