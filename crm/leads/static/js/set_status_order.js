@@ -1,7 +1,8 @@
 jQuery(document).ready(function() {
-     jQuery("#id_status").change( function() {
+     // jQuery("#id_status").change( function() {
+         jQuery(document).on( 'change', "#id_status", function() {
          const status_id = jQuery(this).val();
-         const prom_id = jQuery("#prom_id").val();
+         const prom_id = jQuery(this).next().val();
          jQuery.ajax({
              url: '/ajax/set_status_order/',
              data: {
