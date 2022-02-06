@@ -21,6 +21,7 @@ def order_list(request):
         products = edit_query_to_dict(order.product_set)
         delivery = edit_query_to_dict(order.delivery_set)
         picture = list(products.values())[0]['image']
+        form_status = StatusOfOrderForm(initial={'status': order.status})
 
         result.append({'prom_id': order.prom_id,
                        'date_creation': order.date_creation,
@@ -33,6 +34,7 @@ def order_list(request):
 
                        'products': products,
                        'delivery': delivery,
+                       'form_status':form_status,
 
                        })
 
