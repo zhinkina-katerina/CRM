@@ -10,10 +10,14 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
-    'dict': {
+    'create_object_order': {
         'task': 'leads.tasks.create_object_order',
-        'schedule': 50.0
-    }
+        'schedule': 300.0
+    },
+    'upgrade_ttn_information': {
+        'task': 'leads.tasks.upgrade_ttn_information',
+        'schedule': 86400.0
+    },
 }
 
 
