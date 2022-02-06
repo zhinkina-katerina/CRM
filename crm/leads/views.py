@@ -3,7 +3,8 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.db.models import Q
 from leads.utilits import edit_query_to_dict
-from leads.forms import TtnForm
+from leads.forms import TtnForm, StatusOfOrderForm
+
 
 
 def order_list(request):
@@ -44,11 +45,15 @@ def order_details(request, id):
     delivery = edit_query_to_dict(order.delivery_set)
 
     form = TtnForm(ttn=order.ttn)
+    form_status = StatusOfOrderForm(initial={'status': order.status})
+
     return render(request, 'order_details.html', {'order': order,
                                                   'prom_id': order.prom_id,
                                                   'products': products,
                                                   'delivery': delivery,
                                                   'form': form,
+                                                  'form_status': form_status,
+
                                                   })
 
 
@@ -74,3 +79,12 @@ def set_new_value(request):
         form = TtnForm(ttn='')
 
     return render(request, 'order_details.html', {'form': form})
+
+
+
+def set_status_order(request):
+    status_id = request.GET.get('status_id')
+    prom_id = request.GET.get('prom_id')
+    Order.objects.filter(prom_id=prom_id).update(status=status_id)
+
+    return JsonResponse({'id': prom_id})
