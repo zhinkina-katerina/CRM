@@ -13,15 +13,26 @@
 <script src="{% static 'js/set-new-value-in-form.js' %}"></script>
 
 
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="{% static 'js/set_status_order.js' %}"></script>
+
+
 
 
     <div class="container-fluid">
     <div class="d-sm-flex justify-content-between align-items-center mb-4">
                         <h6 class="text-dark mb-0">01,26,2006</h6>
-    <div class="dropdown"><button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false" type="button" style="background-color: #4f2170;">Принят</button>
-                            <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">First Item</a><a class="dropdown-item" role="presentation" href="#">Second Item</a><a class="dropdown-item" role="presentation" href="#">Third Item</a></div>
-                        </div></div>
 
+
+<form method="get" id="statusForm">
+    {% csrf_token %}
+
+        {{ form_status }}
+
+    <input type="hidden" value="{{ prom_id }}" name="prom_id" id="prom_id">
+</form>
+</div>
+    </div>
 
 
 <div class="row" style="margin: 0px;padding: 20px;">
