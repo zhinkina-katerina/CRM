@@ -8,6 +8,7 @@
 
 {% block content %}
 {% load static %}
+    {% load human_readable_tag %}
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js">
 </script>
 <script src="{% static 'js/set-new-value-in-form.js' %}"></script>
@@ -78,7 +79,7 @@
                                 {% include 'form.html' %}
 
 
-                                        <p>Статус доставки: {{item.status_of_delivery}}
+                                        <p>Статус доставки: {{ delivery|human_readable_delivery:item.status_of_delivery }}
 
                                     </div>
                                     <div class="col">
