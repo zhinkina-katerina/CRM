@@ -6,6 +6,7 @@
 
 {% block content %}
     {% load static %}
+    {% load human_readable_tag %}
     <script src="{% static 'js/set_status_order.js' %}"></script>
 
     {% for order in orders %}
@@ -34,7 +35,7 @@
                                 {% for delivery in order.delivery.values %}
                                 <p class="card-text">{{ delivery.city }}</p>
                                 <p class="card-text">Отеделение {{ delivery.post_office_number }}</p>
-                                <p class="card-text">Статус доставки: {{ delivery.status_of_delivery }}</p>
+                                <p class="card-text">Статус доставки: {{ delivery|human_readable_delivery:delivery.status_of_delivery }}</p>
                                 {% endfor %}
                                 {% if order.products|length > 1 %}
                                     {% if order.products|length < 5 %}
