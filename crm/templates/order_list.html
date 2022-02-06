@@ -5,6 +5,8 @@
 
 
 {% block content %}
+    {% load static %}
+    <script src="{% static 'js/set_status_order.js' %}"></script>
     {% for order in orders %}
 <div class="row" style="margin:0px;padding:20px;">
 
@@ -18,6 +20,13 @@
                             <div class="card-body" style="height:50vh;">
                                 <h4 class="card-title"><a href="{% url 'order_details' id=order.prom_id %}">Заказ № {{ order.prom_id }}</a></h4>
                                 <h6 class="text-muted card-subtitle mb-2">{{ order.payment_name }}</h6>
+
+                            <form method="get" id="statusForm" >
+                                {% csrf_token %}
+                                {{ order.form_status }}
+                                <input type="hidden" value="{{ order.prom_id }}" name="prom_id" id="prom_id">
+                            </form>
+
                                 <hr>
                                 <p class="card-text">{{ order.customer }}</p>
                                 <p class="card-text">{{ order.customer.phone_number }}</p>
