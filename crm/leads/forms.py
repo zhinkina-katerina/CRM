@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from .models import Order
+from .models import Order, Customer
 
 
 class TtnForm(forms.Form):
@@ -16,7 +16,6 @@ class StatusOfOrderForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = ['status']
-
         widgets = {
             'status': forms.Select(attrs={'class': "btn btn-primary dropdown-toggle",
                                           'data-toggle': "dropdown",
@@ -29,3 +28,17 @@ class StatusOfOrderForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(StatusOfOrderForm, self).__init__(*args, **kwargs)
         self.fields['status'].label = ""
+
+
+class IsDisloyalCustomer(forms.ModelForm):
+    class Meta:
+        model = Customer
+        fields = ['is_disloyal']
+        widgets = {
+            'is_disloyal': forms.CheckboxInput(attrs={'style': "width: 17px;height: 15px;"
+            })
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(IsDisloyalCustomer, self).__init__(*args, **kwargs)
+        self.fields['is_disloyal'].label = ""

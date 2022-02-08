@@ -1,9 +1,9 @@
-from .models import Order
+from .models import Order, Customer
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.db.models import Q
 from leads.utilits import edit_query_to_dict
-from leads.forms import TtnForm, StatusOfOrderForm
+from leads.forms import TtnForm, StatusOfOrderForm, IsDisloyalCustomer
 
 
 
@@ -48,6 +48,7 @@ def order_details(request, id):
 
     form = TtnForm(ttn=order.ttn)
     form_status = StatusOfOrderForm(initial={'status': order.status})
+    form_is_disloyal = IsDisloyalCustomer(initial={'is_disloyal': order.customer.is_disloyal})
 
     return render(request, 'order_details.html', {'order': order,
                                                   'prom_id': order.prom_id,
@@ -55,6 +56,7 @@ def order_details(request, id):
                                                   'delivery': delivery,
                                                   'form': form,
                                                   'form_status': form_status,
+                                                  'form_is_disloyal': form_is_disloyal,
 
                                                   })
 
@@ -88,5 +90,19 @@ def set_status_order(request):
     status_id = request.GET.get('status_id')
     prom_id = request.GET.get('prom_id')
     Order.objects.filter(prom_id=prom_id).update(status=status_id)
+
+    return JsonResponse({'id': prom_id})
+
+
+def set_disloyal_client(request):
+    id_is_disloyal = request.GET.get('id_is_disloyal')
+    prom_id = request.GET.get('prom_id')
+    customer = Customer.objects.filter(id=prom_id)
+    if id_is_disloyal:
+        is_disloyal = customer[0].is_disloyal
+        if is_disloyal == True:
+            customer.update(is_disloyal=False)
+        else:
+            customer.update(is_disloyal=True)
 
     return JsonResponse({'id': prom_id})
