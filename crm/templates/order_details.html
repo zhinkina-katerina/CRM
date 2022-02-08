@@ -16,9 +16,7 @@
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script src="{% static 'js/set_status_order.js' %}"></script>
-
-
-
+add<script src="{% static 'js/set_disloyal_client.js' %}"></script>
 
     <div class="container-fluid">
     <div class="d-sm-flex justify-content-between align-items-center mb-4">
@@ -96,7 +94,13 @@
                                         {% endif %}
 
                             {% endfor %}
-                                        <p><input type="checkbox" style="width: 17px;height: 15px;margin: 0px;">&nbsp;Нелояльный клиент</p>
+                                    <form action="{% url 'set_new_value' %}" method="post" id="contactform">
+
+                                    {% csrf_token %}
+                                      <p>{{ form_is_disloyal }} Нелояльный клиент
+                                        <input type="hidden" value="{{ order.customer.id }}" name="prom_id"></p>
+                                    </form>
+
                                         <hr>
                                         <div class="btn-group" role="group"><button class="btn btn-primary" type="button">Написать в вайбер</button><button class="btn btn-primary" type="button">Отправить смс</button></div>
                                     </div>
