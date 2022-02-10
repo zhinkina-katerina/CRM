@@ -1,0 +1,20 @@
+
+<nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
+    <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+        <form class="form-inline d-none d-sm-inline-block mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search" action="{% url 'search' %}" style="width: 629px;">
+            <div class="input-group" style="width: 657px;"><input class="bg-light form-control border-0 small" type="text" placeholder="Поиск по заказам" name="search">
+                <div class="input-group-append"><button class="btn btn-primary text-white py-0" type="submit"  style="background-color: #4f2170; border-color: #4f2170;"  ><i class="fas fa-search">Найти</i></button></div>
+            </div>
+        </form>
+        <nav class="my-2 my-md-0 mr-md-3">
+            {% if user.is_authenticated %}
+            Пользователь: {{ user.username }}.
+            <a class="p-2 text-muted" href="{% url 'password_change' %}">Изменить пароль</a>
+            <a class="p-2 text-muted" href="{% url 'logout' %}">Выйти</a>
+            {% else %}
+            <a class="p-2 text-muted" href="{% url 'login' %}">Войти</a> |
+            <a class="p-2 text-muted" href="{% url 'signup' %}">Регистрация</a>
+            {% endif %}
+        </nav>
+    </div>
+</nav>

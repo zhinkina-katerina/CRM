@@ -1,6 +1,5 @@
 from .handler_orders import HandlerOrders
 from celery import shared_task
-
 from .models import Order, Delivery
 from .nova_poshta import NovaPoshtaClient
 from datetime import datetime, timedelta

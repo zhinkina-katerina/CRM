@@ -1,17 +1,13 @@
 {% extends 'base.html' %}
 {% block title %}Аналитика{% endblock %}
-{% block header %}
-    Распределение заказов
-{% endblock %}
+{% block header %}Распределение заказов{% endblock %}
 
 {% block content %}
   <div id="container" style="width: 75%;">
     <canvas id="pie-chart"></canvas>
   </div>
-
   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
   <script>
-
     var config = {
       type: 'pie',
       data: {
@@ -33,7 +29,6 @@
       var ctx = document.getElementById('pie-chart').getContext('2d');
       window.myPie = new Chart(ctx, config);
     };
-
   </script>
 
 
