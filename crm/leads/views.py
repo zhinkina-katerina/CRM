@@ -6,7 +6,8 @@ from leads.forms import OrderDetailForm, StatusOfOrderForm
 from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import ModelFormMixin, FormMixin
 from django.core.paginator import Paginator
-from chartjs.views.lines import BaseLineChartView
+from django.shortcuts import redirect
+from crm.settings import LOGIN_URL
 
 
 class OrderList(ModelFormMixin, ListView):
@@ -15,6 +16,9 @@ class OrderList(ModelFormMixin, ListView):
     form_class = StatusOfOrderForm
 
     def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('%s?next=%s' % (LOGIN_URL, request.path))
+
         self.object = None
         self.form = self.get_form(self.form_class)
         return ListView.get(self, request, *args, **kwargs)
@@ -68,8 +72,7 @@ class OrderDetails(FormMixin, DetailView):
             ttn = request.POST['ttn']
             prom_id = request.POST['prom_id']
             Order.objects.filter(prom_id=prom_id).update(ttn=ttn)
-            order = {}
-            order['prom_id'] = prom_id
+            order = {'prom_id': prom_id}
             if request.is_ajax:
                 form = OrderDetailForm(ttn=ttn)
                 return render(request, 'form_set_ttn.html', {'form': form,  # noqa
@@ -79,9 +82,20 @@ class OrderDetails(FormMixin, DetailView):
         return JsonResponse({'error': 'invalid post request'})
 
     def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('%s?next=%s' % (LOGIN_URL, request.path))
 
-        attributes = {'status': Order, 'is_disloyal': Customer, 'is_paid_delivery': Delivery}
-        filter_tags = {Order: 'prom_id', Customer: 'id', Delivery: 'order__prom_id'}
+        self.set_form_values(request)
+
+        return DetailView.get(self, request, *args, **kwargs)
+
+    def set_form_values(self, request):
+        attributes = {'status': Order,
+                      'is_disloyal': Customer,
+                      'is_paid_delivery': Delivery}
+        filter_tags = {Order: 'prom_id',
+                       Customer: 'id',
+                       Delivery: 'order__prom_id'}
 
         for attribute in attributes:
             if attribute in request.GET:
@@ -99,17 +113,16 @@ class OrderDetails(FormMixin, DetailView):
                 model.objects.filter(**filter_fields).update(**set_attribute)
                 return JsonResponse({'status': 'success', attribute: value, 'id': prom_id})
 
-        return DetailView.get(self, request, *args, **kwargs)
-
 
 def page_not_found(request, exception):
     return render(request, '404.html', status=404)  # noqa
 
 
 class Analytic(TemplateView):
-    template_name = 'analytics.html'
+    template_name = 'analytics.html'  # noqa
 
     def get_context_data(self, **kwargs):
+
         context = super(Analytic, self).get_context_data(**kwargs)
 
         context['labels'] = [x[1] for x in Order.STATUS_CHOICES]
@@ -119,3 +132,9 @@ class Analytic(TemplateView):
         for label in labels:
             context['data'].append(len(orders.filter(status=label)))
         return context
+
+    def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return redirect('%s?next=%s' % (LOGIN_URL, self.request.path))
+
+        return TemplateView.get(self, request, *args, **kwargs)

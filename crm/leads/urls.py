@@ -15,3 +15,4 @@ urlpatterns = [
 
 ]
 handler404 = "leads.views.page_not_found" # noqa
+handler500 = "leads.views.page_not_found" # noqa
