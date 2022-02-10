@@ -4,14 +4,15 @@
 <form action="{% url 'set_new_value' %}" method="post" id="contactform">
     <div id="ajaxwrapper">
     {% csrf_token %}
-        {% for field in form %}
+        {% for field in form.ttn %}
             <div class="input-group mb-3" id="sendwrapper">
-            <label for="{{ field.id_for_label }}" class="col-sm-1 col-form-label text-md-left">{{ field.label }}</label>
-                {{field}}
+             <label class="col-sm-1 col-form-label text-md-left">{{ form.ttn.label }}</label>
+               {{field}}
+                <input type="hidden" value="{{ order.prom_id }}" name="prom_id">
           <button class="btn btn-outline-secondary" type="submit" id="sendwrapper">Изменить</button>
         </div>
         {% endfor %}
-        <input type="hidden" value="{{ prom_id }}" name="prom_id">
+
     </div>
 </form>
 

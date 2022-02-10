@@ -11,24 +11,27 @@
     {% load human_readable_tag %}
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js">
 </script>
-<script src="{% static 'js/set-new-value-in-form.js' %}"></script>
+<script src="{% static 'js/set-new-ttn.js' %}"></script>
 
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script src="{% static 'js/set_status_order.js' %}"></script>
-add<script src="{% static 'js/set_disloyal_client.js' %}"></script>
+<script src="{% static 'js/set_disloyal_client.js' %}"></script>
+
 
     <div class="container-fluid">
     <div class="d-sm-flex justify-content-between align-items-center mb-4">
                         <h6 class="text-dark mb-0">{{ order.date_creation }}</h6>
 
 
+
+
 <form method="get" id="statusForm">
     {% csrf_token %}
 
-        {{ form_status }}
+        {{ form.status }}
 
-    <input type="hidden" value="{{ prom_id }}" name="prom_id" id="prom_id">
+    <input type="hidden" value="{{ order.prom_id }}" name="prom_id" id="prom_id">
 </form>
 </div>
     </div>
@@ -38,7 +41,7 @@ add<script src="{% static 'js/set_disloyal_client.js' %}"></script>
                     <div class="w-100 d-sm-block d-md-none d-lg-none d-xl-none"></div>
                     <div class="col" style="padding:0px;">
                         <div class="card">
-                            {% for product in products.values %}
+                            {% for product in order.product_set.all %}
                             <div class="card-body border rounded-0" style="padding: -9px;">
                                 <div class="row">
                                     <div class="col-xl-4 d-inline-flex flex-column align-content-center align-items-xl-center" style="background-color: rgba(109,40,170,0.19);padding: -1px;"><img class="img-thumbnail d-xl-flex align-items-center align-content-center my-auto" src="{{product.image}}"></div>
@@ -68,13 +71,13 @@ add<script src="{% static 'js/set_disloyal_client.js' %}"></script>
                                         <p>{{ order.customer.phone_number }}<br></p>
                                         <p>{{ order.customer.email }}<br></p>
                                         <hr>
-                            {% for item in delivery.values  %}
+                            {% for item in order.delivery_set.all  %}
 
                                         <p>{{ item.city }}</p>
                                         <p>Отделение {{ item.post_office_number }}</p>
 
 
-                                {% include 'form.html' %}
+                                {% include 'form_set_ttn.html' %}
 
 
                                         <p>Статус доставки: {{ delivery|human_readable_delivery:item.status_of_delivery }}
@@ -97,7 +100,7 @@ add<script src="{% static 'js/set_disloyal_client.js' %}"></script>
                                     <form action="{% url 'set_new_value' %}" method="post" id="contactform">
 
                                     {% csrf_token %}
-                                      <p>{{ form_is_disloyal }} Нелояльный клиент
+                                      <p>{{ form.is_disloyal }} Нелояльный клиент
                                         <input type="hidden" value="{{ order.customer.id }}" name="prom_id"></p>
                                     </form>
 
