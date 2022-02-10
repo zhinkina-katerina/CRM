@@ -9,7 +9,7 @@ class HandlerOrders:
 
     def handle_order(self, order):
         fullname = order.get('client_first_name', '') + ' ' + \
-                   order.get('client_second_name', '')+ ' ' + \
+                   order.get('client_second_name', '') + ' ' + \
                    order.get('client_last_name', '')
 
         address = order.get('delivery_address', '').split(",")
@@ -27,19 +27,17 @@ class HandlerOrders:
             try:
                 Order.objects.get(prom_id=order['id'])
                 continue
-            except:
+            except Exception('Данный заказ есть в базе'):
                 pass
 
             fullname, city, post_office_number = self.handle_order(order=order)
-
-
 
             try:
                 customer = Customer.objects.get(phone_number=order['phone'])
             except:
                 customer = Customer.objects.create(fullname=fullname,
-                                                       email=order.get('email', ''),
-                                                       phone_number=order['phone'])
+                                                   email=order.get('email', ''),
+                                                   phone_number=order['phone'])
             status = {'received': 'Принят',
                       'paid': 'Оплачен',
                       }[order['status']]
@@ -56,18 +54,24 @@ class HandlerOrders:
             for product in order['products']:
                 retail = list(filter(str.isdigit, product['total_price']))
                 retail = "".join(retail)
+                sku = product['sku']
+                warehouse = {
+                    '01-': 'ToysWorld',
+                    '02-': 'OnlyToys',
+                    '03-': 'JustToys'
+                }[sku[:3]]
 
-                Product.objects.create(
-                    order=order_prom,
-                    name=product['name'],
-                    quantity=product['quantity'],
-                    retail=retail,
-                    sku=product['sku'],
-                    image=product['image']
-                )
+                Product.objects.create(order=order_prom,
+                                       name=product['name'],
+                                       quantity=product['quantity'],
+                                       retail=retail,
+                                       sku=sku,
+                                       image=product['image'].replace('w100_h100', 'w300_h300'),
+                                       warehouse=warehouse,
 
-            Delivery.objects.create(
-                order=order_prom,
-                city=city,
-                post_office_number=post_office_number,
-            )
+                                       )
+
+            Delivery.objects.create(order=order_prom,
+                                    city=city,
+                                    post_office_number=post_office_number,
+                                    )
