@@ -1,44 +1,43 @@
 from django import forms
-from django.forms import ModelForm
-from .models import Order, Customer
+from .models import Order
 
 
-class TtnForm(forms.Form):
+class OrderDetailForm(forms.Form):
+
     def __init__(self, *args, **kwargs):
-        self.ttn = kwargs.pop('ttn')
-        super(TtnForm, self).__init__(*args, **kwargs)
+        if 'ttn' in kwargs:
+            self.ttn = kwargs.pop('ttn')
+        if 'status' in kwargs:
+            self.status = kwargs.pop('status')
+        if 'initial_is_disloyal' in kwargs:
+            self.status = kwargs.pop('status')
+
+        super(OrderDetailForm, self).__init__(*args, **kwargs)
         self.fields['ttn'].widget = forms.TextInput(attrs={'value': self.ttn})
+        self.fields['status'].initial = self.initial_status
+        self.fields['is_disloyal'].initial = self.initial_is_disloyal
 
     ttn = forms.CharField(label='ТТН')
+    status = forms.CharField(
+                widget=forms.Select(choices=Order.STATUS_CHOICES,
+                                    attrs={'class': "btn btn-primary dropdown-toggle",
+                                           'data-toggle': "dropdown",
+                                           'aria-expanded': "false",
+                                           'type': "button",
+                                           'style': "background-color: #4f2170; "
+                                                    "border-color: #4f2170;"},
+                                    ))
+    is_disloyal = forms.CharField(widget=forms.CheckboxInput(attrs={'style': "width: 17px;"
+                                                                             "height: 15px;"
+                                                      }))
+
+
+
 
 
 class StatusOfOrderForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = ['status']
-        widgets = {
-            'status': forms.Select(attrs={'class': "btn btn-primary dropdown-toggle",
-                                          'data-toggle': "dropdown",
-                                          'aria-expanded': "false",
-                                          'type': "button",
-                                          'style': "background-color: #4f2170; border-color: #4f2170;"},
-                                   )
-        }
-
-    def __init__(self, *args, **kwargs):
-        super(StatusOfOrderForm, self).__init__(*args, **kwargs)
-        self.fields['status'].label = ""
 
 
-class IsDisloyalCustomer(forms.ModelForm):
-    class Meta:
-        model = Customer
-        fields = ['is_disloyal']
-        widgets = {
-            'is_disloyal': forms.CheckboxInput(attrs={'style': "width: 17px;height: 15px;"
-            })
-        }
-
-    def __init__(self, *args, **kwargs):
-        super(IsDisloyalCustomer, self).__init__(*args, **kwargs)
-        self.fields['is_disloyal'].label = ""
