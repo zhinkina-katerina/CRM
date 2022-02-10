@@ -89,12 +89,6 @@
                                         <p>Дата окончания хранения: {{ item.final_storage_date }}</p>
                                         <p>Стоимость доставки: {{ item.cost_of_delivery }} грн.</p>
 
-{#                                        {% if item.is_paid_delivery %}#}
-{#                                        <p>Платим ли мы за доставку: Да </p>#}
-{#                                        {% else %}#}
-{#                                        <p>Платим ли мы за доставку: Нет </p>#}
-{#                                        {% endif %}#}
-
                                         <form method="get" id="contactform">
 
                                     {% csrf_token %}
@@ -111,7 +105,13 @@
                                     </form>
 
                                         <hr>
-                                        <div class="btn-group" role="group"><button class="btn btn-primary" type="button">Написать в вайбер</button><button class="btn btn-primary" type="button">Отправить смс</button></div>
+                                        <div class="btn-group" role="group">
+                                            <form action="viber://chat?number=%2B{{ order.customer.phone_number|slice:"1:" }}" method="get" target="_blank">
+                                            <button class="btn btn-primary" type="submit" >
+                                            Написать на Вайбер</button>
+                                                </form>
+
+                                            <button class="btn btn-primary" type="button">Отправить смс</button></div>
                                     </div>
                                 </div>
                             </div>
