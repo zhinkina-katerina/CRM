@@ -5,6 +5,8 @@ from django.db.models import Q
 from leads.forms import OrderDetailForm, StatusOfOrderForm
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import ModelFormMixin, FormMixin
+from django.core.paginator import Paginator
+
 
 
 class OrderList(ModelFormMixin, ListView):
@@ -26,9 +28,18 @@ class OrderList(ModelFormMixin, ListView):
                 Q(prom_id__iregex=search_object) |
                 Q(customer__fullname__iregex=search_object) |
                 Q(product__name__iregex=search_object))
-        context['orders'] = orders
+
+        paginated_orders = self.make_pagination(orders)
+
+        context['orders'] = paginated_orders
         context['form_status'] = self.form
         return context
+
+    def make_pagination(self, items):
+        paginator = Paginator(items, 10)
+        page_number = self.request.GET.get('page')
+        paginated_orders = paginator.get_page(page_number)
+        return paginated_orders
 
 
 class OrderDetails(FormMixin, DetailView):
