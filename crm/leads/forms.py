@@ -7,12 +7,6 @@ class OrderDetailForm(forms.Form):
     def __init__(self, *args, **kwargs):
         if 'ttn' in kwargs:
             self.ttn = kwargs.pop('ttn')
-        if 'status' in kwargs:
-            self.status = kwargs.pop('status')
-        if 'initial_is_disloyal' in kwargs:
-            self.is_disloyal = kwargs.pop('is_disloyal')
-        if 'is_paid_delivery' in kwargs:
-            self.is_paid_delivery = kwargs.pop('is_paid_delivery')
 
         super(OrderDetailForm, self).__init__(*args, **kwargs)
         self.fields['ttn'].widget = forms.TextInput(attrs={'value': self.ttn})
@@ -22,8 +16,7 @@ class OrderDetailForm(forms.Form):
 
 
     ttn = forms.CharField(label='ТТН')
-    status = forms.CharField(
-        widget=forms.Select(choices=Order.STATUS_CHOICES,
+    status = forms.CharField(widget=forms.Select(choices=Order.STATUS_CHOICES,
                             attrs={'class': "btn btn-primary dropdown-toggle",
                                    'data-toggle': "dropdown",
                                    'aria-expanded': "false",

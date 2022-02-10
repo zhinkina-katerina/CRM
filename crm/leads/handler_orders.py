@@ -17,10 +17,18 @@ class HandlerOrders:
     def handle_order(self, order):
         client_first_name = order['client_first_name']
         if not client_first_name: client_first_name = ''
+
         client_second_name = order["client_second_name"]
         if not client_second_name: client_second_name = ''
+
         client_last_name = order['client_last_name']
         if not client_last_name: client_last_name = ''
+
+        self.payment_name = order['payment_option']['name']
+        if not self.payment_name: self.payment_name = ''
+
+        self.email = order['email']
+        if not self.email: self.email = ''
 
         self.fullname = (client_first_name + ' ' +
                          client_second_name + ' ' +
@@ -30,14 +38,6 @@ class HandlerOrders:
         self.city = address[0]
         self.post_office_number = address[1]
 
-        self.payment_name = order['payment_option']['name']
-        if not self.payment_name:
-            self.payment_name = 'Способ оплаты не указан"'
-
-        self.email = order['email']
-        if not self.email:
-            self.email = 'Почта не указана'
-
         self.status = {'received': 'In_process',
                        'paid': 'Done',
                        'new': 'New',
@@ -45,11 +45,9 @@ class HandlerOrders:
 
     def create_object_order(self):
         order_list = prom_client.get_order_list()
-
         for order in order_list['orders']:
             if order['status'] not in ORDER_STATUSES:
                 continue
-
             if Order.objects.filter(prom_id=order['id']).first():
                 continue
 

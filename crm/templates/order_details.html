@@ -4,122 +4,91 @@
 {% block header %}
     Заказ {{ order.prom_id }}
 {% endblock %}
-
-
-{% block content %}
 {% load static %}
-    {% load human_readable_tag %}
+{% load human_readable_tag %}
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js">
 </script>
 <script src="{% static 'js/set-new-ttn.js' %}"></script>
-
-
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script src="{% static 'js/set_status_order.js' %}"></script>
 <script src="{% static 'js/set_disloyal_client.js' %}"></script>
 
-
+{% block content %}
     <div class="container-fluid">
-    <div class="d-sm-flex justify-content-between align-items-center mb-4">
-                        <h6 class="text-dark mb-0">{{ order.date_creation }}</h6>
-
-
-
-
-<form method="get" id="statusForm">
-    {% csrf_token %}
-
-        {{ form.status }}
-
-    <input type="hidden" value="{{ order.prom_id }}" name="prom_id" id="prom_id">
-</form>
-</div>
+        <div class="d-sm-flex justify-content-between align-items-center mb-4">
+            <h6 class="text-dark mb-0">{{ order.date_creation }}</h6>
+            <form method="get" id="statusForm">
+                {% csrf_token %}
+                {{ form.status }}
+            <input type="hidden" value="{{ order.prom_id }}" name="prom_id" id="prom_id">
+            </form>
+        </div>
     </div>
-
-
-<div class="row" style="margin: 0px;padding: 20px;">
-                    <div class="w-100 d-sm-block d-md-none d-lg-none d-xl-none"></div>
-                    <div class="col" style="padding:0px;">
-                        <div class="card">
-                            {% for product in order.product_set.all %}
-                            <div class="card-body border rounded-0" style="padding: -9px;">
-                                <div class="row">
-                                    <div class="col-xl-4 d-inline-flex flex-column align-content-center align-items-xl-center" style="background-color: rgba(109,40,170,0.19);padding: -1px;"><img class="img-thumbnail d-xl-flex align-items-center align-content-center my-auto" src="{{product.image}}"></div>
-                                    <div class="col">
-                                        <p>{{ product.name }}</p>
-                                        <p>{{ product.quantity }} шт.<br></p>
-                                        <p>{{ product.retail }} грн<br></p>
-                                    </div>
-                                    <div class="col">
-                                        <p>Код товара: {{ product.sku }}<br></p>
-                                        <p>Склад:{{ product.warehouse }}<br></p>
-                                    </div>
-                                </div>
+    <div class="row" style="margin: 0px;padding: 20px;">
+        <div class="w-100 d-sm-block d-md-none d-lg-none d-xl-none"></div>
+        <div class="col" style="padding:0px;">
+            <div class="card">
+                {% for product in order.product_set.all %}
+                    <div class="card-body border rounded-0" style="padding: -9px;">
+                        <div class="row">
+                            <div class="col-xl-4 d-inline-flex flex-column align-content-center align-items-xl-center" style="background-color: rgba(109,40,170,0.19);padding: -1px;">
+                                <img class="img-thumbnail d-xl-flex align-items-center align-content-center my-auto" src="{{product.image}}">
                             </div>
-
-{% endfor %}
-
-                            <h5 class="text-left text-dark border rounded-0 mb-0" style="margin: 0px;padding: 29px;">Всего:
-                                {{ order.total_price }}</h5>
-
-                            <div class="card-body border rounded-0" style="height:50vh;">
-                                <div class="row">
-                                    <div class="col">
-                                        <h5>Клиент</h5>
-                                        <p>{{ order.customer}}<br></p>
-                                        <p>{{ order.customer.phone_number }}<br></p>
-                                        <p>{{ order.customer.email }}<br></p>
-                                        <hr>
+                            <div class="col">
+                                <p>{{ product.name }}</p>
+                                <p>{{ product.quantity }} шт.<br></p>
+                                <p>{{ product.retail }} грн<br></p>
+                            </div>
+                            <div class="col">
+                                <p>Код товара: {{ product.sku }}<br></p>
+                                <p>Склад:{{ product.warehouse }}<br></p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                <h5 class="text-left text-dark border rounded-0 mb-0"
+                    style="margin: 0px;padding: 29px;">Всего: {{ order.total_price }}</h5>
+                <div class="card-body border rounded-0" style="height:50vh;">
+                    <div class="row">
+                        <div class="col">
+                            <h5>Клиент</h5>
+                            <p>{{ order.customer}}<br></p>
+                            <p>{{ order.customer.phone_number }}<br></p>
+                            <p>{{ order.customer.email }}<br></p>
+                            <hr>
                             {% for item in order.delivery_set.all  %}
-
-                                        <p>{{ item.city }}</p>
-                                        <p>Отделение {{ item.post_office_number }}</p>
-
-
+                                <p>{{ item.city }}</p>
+                                <p>Отделение {{ item.post_office_number }}</p>
                                 {% include 'form_set_ttn.html' %}
+                                <p>Статус доставки: {{ delivery|human_readable_delivery:item.status_of_delivery }}</div>
 
-
-                                        <p>Статус доставки: {{ delivery|human_readable_delivery:item.status_of_delivery }}
-
-                                    </div>
-                                    <div class="col">
-                                        <h5>Оплата</h5>
-                                        <p>{{ order.payment_name }}</p>
-                                        <p>Дата прибытия: {{ item.arrival_date }}</p>
-                                        <p>Дата окончания хранения: {{ item.final_storage_date }}</p>
-                                        <p>Стоимость доставки: {{ item.cost_of_delivery }} грн.</p>
-
-                                        <form method="get" id="contactform">
-
-                                    {% csrf_token %}
-                                      <p>{{ form.is_paid_delivery }} Платим ли мы за доставку?
+                                <div class="col">
+                                    <h5>Оплата</h5>
+                                    <p>{{ order.payment_name }}</p>
+                                    <p>Дата прибытия: {{ item.arrival_date }}</p>
+                                    <p>Дата окончания хранения: {{ item.final_storage_date }}</p>
+                                    <p>Стоимость доставки: {{ item.cost_of_delivery }} грн.</p>
+                                    <form method="get" id="contactform">
+                                        {% csrf_token %}
+                                        <p>{{ form.is_paid_delivery }} Платим ли мы за доставку?
                                         <input type="hidden" value="{{ order.prom_id }}" name="prom_id"></p>
                                     </form>
 
                             {% endfor %}
-                                    <form method="get" id="contactform">
-
-                                    {% csrf_token %}
-                                      <p>{{ form.is_disloyal }} Нелояльный клиент
-                                        <input type="hidden" value="{{ order.customer.id }}" name="prom_id"></p>
-                                    </form>
-
-                                        <hr>
-                                        <div class="btn-group" role="group">
-                                            <form action="viber://chat?number=%2B{{ order.customer.phone_number|slice:"1:" }}" method="get" target="_blank">
-                                            <button class="btn btn-primary" type="submit" >
-                                            Написать на Вайбер</button>
-                                                </form>
-
-                                            <button class="btn btn-primary" type="button">Отправить смс</button></div>
-                                    </div>
-                                </div>
+                        <form method="get" id="contactform">
+                            {% csrf_token %}
+                            <p>{{ form.is_disloyal }} Нелояльный клиент
+                            <input type="hidden" value="{{ order.customer.id }}" name="prom_id"></p>
+                        </form>
+                        <hr>
+                        <div class="btn-group" role="group">
+                            <form action="viber://chat?number=%2B{{ order.customer.phone_number|slice:"1:" }}" method="get" target="_blank">
+                                <button class="btn btn-primary" type="submit">Написать на Вайбер</button></form></div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-
-
-</div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

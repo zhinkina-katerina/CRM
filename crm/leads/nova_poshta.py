@@ -24,8 +24,6 @@ class NovaPoshtaClient(ApiConnector):
                 }
                 }
         response = self.make_request(body=body, url=self.url, method=self.method, headers=self.headers)
-        if not response['success']:
-            return print('Ошибка')
 
         city_ref = response.get('data')[0].get('Addresses')[0].get("Ref")
         return city_ref
@@ -44,9 +42,6 @@ class NovaPoshtaClient(ApiConnector):
                 }
                 }
         response = self.make_request(body=body, url=self.url, method=self.method, headers=self.headers)
-
-        if not response['success']:
-            return print('Ошибка')
 
         result = {
             "redelivery": response.get('data')[0].get('Redelivery'),
