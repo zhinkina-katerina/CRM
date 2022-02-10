@@ -11,7 +11,7 @@ from django.core.paginator import Paginator
 
 class OrderList(ModelFormMixin, ListView):
     model = Order
-    template_name = 'order_list.html'
+    template_name = 'order_list.html'# noqa
     form_class = StatusOfOrderForm
 
     def get(self, request, *args, **kwargs):
@@ -44,7 +44,7 @@ class OrderList(ModelFormMixin, ListView):
 
 class OrderDetails(FormMixin, DetailView):
     model = Order
-    template_name = 'order_details.html'
+    template_name = 'order_details.html'# noqa
     slug_url_kwarg = 'prom_id'
     slug_field = 'prom_id'
     form_class = OrderDetailForm
@@ -72,7 +72,7 @@ class OrderDetails(FormMixin, DetailView):
             order['prom_id'] = prom_id
             if request.is_ajax:
                 form = OrderDetailForm(ttn=ttn)
-                return render(request, 'form_set_ttn.html', {'form': form,
+                return render(request, 'form_set_ttn.html', {'form': form, # noqa
                                                              'order': order,
                                                              })
 
@@ -100,3 +100,6 @@ class OrderDetails(FormMixin, DetailView):
                 return JsonResponse({'status': 'success', attribute: value, 'id': prom_id})
 
         return DetailView.get(self, request, *args, **kwargs)
+
+def page_not_found(request, exception):
+    return render(request, '404.html', status=404)
