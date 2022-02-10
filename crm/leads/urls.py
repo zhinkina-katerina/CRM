@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from leads.views import *
+from django.conf.urls import handler404, handler500
 
 urlpatterns = [
     path('', views.OrderList.as_view(), name='home'),
@@ -12,3 +13,4 @@ urlpatterns = [
     path('ajax/set_disloyal_client/', views.OrderDetails.as_view(), name='set_disloyal_client'),
 
 ]
+handler404 = "leads.views.page_not_found" # noqa
