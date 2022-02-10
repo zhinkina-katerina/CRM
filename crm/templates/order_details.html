@@ -90,14 +90,21 @@
                                         <p>Дата окончания хранения: {{ item.final_storage_date }}</p>
                                         <p>Стоимость доставки: {{ item.cost_of_delivery }} грн.</p>
 
-                                        {% if item.is_paid_delivery %}
-                                        <p>Платим ли мы за доставку: Да </p>
-                                        {% else %}
-                                        <p>Платим ли мы за доставку: Нет </p>
-                                        {% endif %}
+{#                                        {% if item.is_paid_delivery %}#}
+{#                                        <p>Платим ли мы за доставку: Да </p>#}
+{#                                        {% else %}#}
+{#                                        <p>Платим ли мы за доставку: Нет </p>#}
+{#                                        {% endif %}#}
+
+                                        <form method="get" id="contactform">
+
+                                    {% csrf_token %}
+                                      <p>{{ form.is_paid_delivery }} Платим ли мы за доставку?
+                                        <input type="hidden" value="{{ order.prom_id }}" name="prom_id"></p>
+                                    </form>
 
                             {% endfor %}
-                                    <form action="{% url 'set_new_value' %}" method="post" id="contactform">
+                                    <form method="get" id="contactform">
 
                                     {% csrf_token %}
                                       <p>{{ form.is_disloyal }} Нелояльный клиент
