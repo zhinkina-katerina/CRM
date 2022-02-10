@@ -2,107 +2,95 @@ from .models import Order, Customer
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.db.models import Q
-from leads.utilits import edit_query_to_dict
-from leads.forms import TtnForm, StatusOfOrderForm, IsDisloyalCustomer
+from leads.forms import OrderDetailForm, StatusOfOrderForm
+from django.views.generic import ListView, DetailView
+from django.views.generic.edit import ModelFormMixin, FormMixin
 
 
+class OrderList(ModelFormMixin, ListView):
+    model = Order
+    template_name = 'order_list.html'
+    form_class = StatusOfOrderForm
 
-def order_list(request):
-    orders = Order.objects.prefetch_related('product_set', 'delivery_set').all()
-    search_object = request.GET.get('search', '').lower()
-    if search_object:
-        orders = orders.filter(
-            Q(prom_id__iregex=search_object) |
-            Q(customer__fullname__iregex=search_object) |
-            Q(product__name__iregex=search_object))
-
-    result = []
-    for order in orders:
-        products = edit_query_to_dict(order.product_set)
-        delivery = edit_query_to_dict(order.delivery_set)
-        picture = list(products.values())[0]['image']
-        form_status = StatusOfOrderForm(initial={'status': order.status})
-
-        result.append({'prom_id': order.prom_id,
-                       'date_creation': order.date_creation,
-                       'ttn': order.ttn,
-                       'status': order.status,
-                       'customer': order.customer,
-                       'payment_name': order.payment_name,
-                       'total_price': order.total_price,
-                       'picture': picture,
-
-                       'products': products,
-                       'delivery': delivery,
-                       'form_status':form_status,
-
-                       })
-
-    return render(request, 'order_list.html', {'orders': result})
+    def get(self, request, *args, **kwargs):
+        self.object = None
+        self.form = self.get_form(self.form_class)
+        return ListView.get(self, request, *args, **kwargs)
 
 
-def order_details(request, id):
-    order = Order.objects.prefetch_related('product_set', 'delivery_set').get(prom_id=id)
-    products = edit_query_to_dict(order.product_set)
-    delivery = edit_query_to_dict(order.delivery_set)
-
-    form = TtnForm(ttn=order.ttn)
-    form_status = StatusOfOrderForm(initial={'status': order.status})
-    form_is_disloyal = IsDisloyalCustomer(initial={'is_disloyal': order.customer.is_disloyal})
-
-    return render(request, 'order_details.html', {'order': order,
-                                                  'prom_id': order.prom_id,
-                                                  'products': products,
-                                                  'delivery': delivery,
-                                                  'form': form,
-                                                  'form_status': form_status,
-                                                  'form_is_disloyal': form_is_disloyal,
-
-                                                  })
+    def get_context_data(self, **kwargs):
+        context = super(OrderList, self).get_context_data(**kwargs)
+        orders = Order.objects.select_related('customer').prefetch_related('delivery_set', 'product_set').all()
+        search_object = self.request.GET.get('search', '').lower()
+        if search_object:
+            orders = orders.filter(
+                Q(prom_id__iregex=search_object) |
+                Q(customer__fullname__iregex=search_object) |
+                Q(product__name__iregex=search_object))
+        context['orders'] = orders
+        context['form_status'] = self.form
+        return context
 
 
-def set_new_value(request):
-    if request.method == 'POST':
+class OrderDetails(FormMixin, DetailView):
+    model = Order
+    template_name = 'order_details.html'
+    slug_url_kwarg = 'prom_id'
+    slug_field = 'prom_id'
+    form_class = OrderDetailForm
 
-        ttn = request.POST['ttn']
-        prom_id = request.POST['prom_id']
-        form_data = TtnForm(request.POST, ttn=ttn)
-        Order.objects.filter(prom_id=prom_id).update(ttn=ttn)
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        order = queryset.filter(prom_id=self.kwargs.get('prom_id')).select_related('customer').prefetch_related(
+            'delivery_set', 'product_set')
+        if order:
+            self.set_initial_to_forms(order)
+        return order
 
-        if form_data.is_valid():
+    def set_initial_to_forms(self, order):
+        self.form_class.ttn = order[0].ttn
+        self.form_class.initial_status = order[0].status
+        self.form_class.initial_is_disloyal = order[0].customer.is_disloyal
+
+    def post(self, request, *args, **kwargs):
+
+        if request.POST.get('ttn'):
+            ttn = request.POST['ttn']
+            prom_id = request.POST['prom_id']
+            Order.objects.filter(prom_id=prom_id).update(ttn=ttn)
+            order = {}
+            order['prom_id'] = prom_id
             if request.is_ajax:
-                form = TtnForm(ttn=ttn)
-                return render(request, 'form.html', {'form': form,
-                                                     'prom_id': prom_id})
-            form = TtnForm(ttn=ttn)
-            return render(request, 'form.html', {'form': form,
-                                                          'prom_id': prom_id})
+                form = OrderDetailForm(ttn=ttn)
+                return render(request, 'form_set_ttn.html', {'form': form,
+                                                             'order': order,
+                                                             })
 
+        return JsonResponse({'error': 'invalid post request'})
 
-    else:
-        form = TtnForm(ttn='')
+    def get(self, request, *args, **kwargs):
 
-    return render(request, 'order_details.html', {'form': form})
+        if request.GET.get('status_id'):
+            status_id = request.GET.get('status_id')
+            prom_id = request.GET.get('prom_id')
+            Order.objects.filter(prom_id=prom_id).update(status=status_id)
+            self.kwargs['prom_id'] = prom_id
+            return JsonResponse({'id': prom_id})
 
+        if request.GET.get('id_is_disloyal'):
 
+            id_is_disloyal = request.GET.get('id_is_disloyal')
+            prom_id = request.GET.get('prom_id')
+            customer = Customer.objects.filter(id=prom_id).all()
+            if id_is_disloyal:
+                is_disloyal = customer[0].is_disloyal
+                if is_disloyal:
+                    print('0')
+                    customer.update(is_disloyal=False)
+                else:
+                    print("1")
+                    customer.update(is_disloyal=True)
 
-def set_status_order(request):
-    status_id = request.GET.get('status_id')
-    prom_id = request.GET.get('prom_id')
-    Order.objects.filter(prom_id=prom_id).update(status=status_id)
+            return JsonResponse({'id': prom_id})
 
-    return JsonResponse({'id': prom_id})
-
-
-def set_disloyal_client(request):
-    id_is_disloyal = request.GET.get('id_is_disloyal')
-    prom_id = request.GET.get('prom_id')
-    customer = Customer.objects.filter(id=prom_id)
-    if id_is_disloyal:
-        is_disloyal = customer[0].is_disloyal
-        if is_disloyal == True:
-            customer.update(is_disloyal=False)
-        else:
-            customer.update(is_disloyal=True)
-
-    return JsonResponse({'id': prom_id})
+        return DetailView.get(self, request, *args, **kwargs)
