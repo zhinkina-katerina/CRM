@@ -1,4 +1,4 @@
-from .models import Order, Customer
+from .models import Order, Customer, Delivery
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.db.models import Q
@@ -16,7 +16,6 @@ class OrderList(ModelFormMixin, ListView):
         self.object = None
         self.form = self.get_form(self.form_class)
         return ListView.get(self, request, *args, **kwargs)
-
 
     def get_context_data(self, **kwargs):
         context = super(OrderList, self).get_context_data(**kwargs)
@@ -51,9 +50,9 @@ class OrderDetails(FormMixin, DetailView):
         self.form_class.ttn = order[0].ttn
         self.form_class.initial_status = order[0].status
         self.form_class.initial_is_disloyal = order[0].customer.is_disloyal
+        self.form_class.initial_is_paid_delivery = order[0].delivery_set.all()[0].is_paid_delivery
 
     def post(self, request, *args, **kwargs):
-
         if request.POST.get('ttn'):
             ttn = request.POST['ttn']
             prom_id = request.POST['prom_id']
@@ -70,27 +69,23 @@ class OrderDetails(FormMixin, DetailView):
 
     def get(self, request, *args, **kwargs):
 
-        if request.GET.get('status_id'):
-            status_id = request.GET.get('status_id')
-            prom_id = request.GET.get('prom_id')
-            Order.objects.filter(prom_id=prom_id).update(status=status_id)
-            self.kwargs['prom_id'] = prom_id
-            return JsonResponse({'id': prom_id})
+        attributes = {'status': Order, 'is_disloyal': Customer, 'is_paid_delivery': Delivery}
+        filter_tags = {Order: 'prom_id', Customer: 'id', Delivery: 'order__prom_id'}
 
-        if request.GET.get('id_is_disloyal'):
+        for attribute in attributes:
+            if attribute in request.GET:
+                model = attributes[attribute]
+                filter_tag = filter_tags[model]
+                value = request.GET.get(attribute)
+                prom_id = request.GET.get('prom_id')
+                filter_fields = {filter_tag: prom_id}
 
-            id_is_disloyal = request.GET.get('id_is_disloyal')
-            prom_id = request.GET.get('prom_id')
-            customer = Customer.objects.filter(id=prom_id).all()
-            if id_is_disloyal:
-                is_disloyal = customer[0].is_disloyal
-                if is_disloyal:
-                    print('0')
-                    customer.update(is_disloyal=False)
-                else:
-                    print("1")
-                    customer.update(is_disloyal=True)
+                if value == 'on':
+                    bool_value = model.objects.filter(**filter_fields).values()[0][attribute]
+                    value = not bool_value
 
-            return JsonResponse({'id': prom_id})
+                set_attribute = {attribute: value}
+                model.objects.filter(**filter_fields).update(**set_attribute)
+                return JsonResponse({'status': 'success', attribute: value, 'id': prom_id})
 
         return DetailView.get(self, request, *args, **kwargs)
