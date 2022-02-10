@@ -5,7 +5,7 @@ jQuery(document).ready(function() {
          jQuery.ajax({
              url: '/ajax/set_status_order/',
              data: {
-                 'status_id': status_id,
+                 'status': status_id,
                  'prom_id': prom_id
              },
 
