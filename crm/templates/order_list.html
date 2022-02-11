@@ -3,11 +3,12 @@
 {% block title %}Заказы{% endblock %}
 {% block header %}Последние заказы:{% endblock %}
 
-{% load static %}
-{% load human_readable_tag %}
-<script src="{% static 'js/set_status_order.js' %}"></script>
+
 
 {% block content %}
+    {% load static %}
+    {% load human_readable_tag %}
+    <script src="{% static 'js/set_status_order.js' %}"></script>
         {% for order in orders %}
         <div class="row" style="margin:0px;padding:20px;">
             {% with order.product_set.all|first as product  %}
